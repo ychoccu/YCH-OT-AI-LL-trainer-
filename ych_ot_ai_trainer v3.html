@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>YCH OT AI Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F6F3EC;
+    --surface:#FFFFFF;
+    --surface-2:#EFEAE0;
+    --ink:#20302C;
+    --ink-soft:#59685F;
+    --teal:#22615C;
+    --teal-dark:#153F3C;
+    --sage:#9BC0AC;
+    --gold:#E3A23C;
+    --gold-deep:#B97A1F;
+    --alert:#C0392B;
+    --alert-bg:#FBE6E3;
+    --amber:#D98E28;
+    --amber-bg:#FCF0DA;
+    --safe-bg:#E7F1EA;
+    --line:#DED6C6;
+    --radius:20px;
+    --radius-sm:12px;
+    --shadow:0 8px 24px rgba(21,63,60,0.10);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Atkinson Hyperlegible', sans-serif;
+    font-size:17px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+    color:var(--teal-dark);
+    margin:0;
+  }
+  button{font-family:inherit;}
+  a{color:var(--teal);}
+
+  /* ---------- Skip link / focus ---------- */
+  .skip-link{
+    position:absolute; left:-999px; top:0; background:var(--teal); color:#fff;
+    padding:10px 16px; border-radius:0 0 8px 0; z-index:200;
+  }
+  .skip-link:focus{left:0;}
+  :focus-visible{outline:3px solid var(--teal); outline-offset:2px;}
+
+  /* ---------- Header ---------- */
+  header.site{
+    background:var(--teal-dark);
+    color:#fff;
+    padding:18px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .brand{display:flex; align-items:center; gap:14px;}
+  .brand-mark{
+    width:46px;height:46px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--sage), var(--teal) 70%);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fraunces',serif; font-weight:700; color:#fff; font-size:19px;
+    flex-shrink:0;
+    box-shadow:inset 0 0 0 3px rgba(255,255,255,0.15);
+  }
+  .brand h1{color:#fff; font-size:1.5rem;}
+  .brand p{margin:2px 0 0; font-size:0.85rem; color:#CFE3DC;}
+
+  nav.tabs{
+    display:flex; gap:6px; background:var(--surface);
+    padding:6px; border-radius:999px; box-shadow:var(--shadow);
+    flex-wrap:wrap;
+  }
+  nav.tabs button{
+    border:none; background:transparent; color:var(--ink-soft);
+    padding:10px 18px; border-radius:999px; font-size:0.95rem; font-weight:700;
+    cursor:pointer; transition:background 0.15s, color 0.15s;
+  }
+  nav.tabs button.active{ background:var(--teal); color:#fff; }
+  nav.tabs button:hover:not(.active){ background:var(--surface-2); }
+
+  main{max-width:1180px; margin:0 auto; padding:24px;}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* ---------- Home ---------- */
+  .hero{
+    display:grid; grid-template-columns:1.2fr 1fr; gap:28px; align-items:center;
+    background:var(--surface); border-radius:var(--radius); padding:36px;
+    box-shadow:var(--shadow); margin-bottom:24px;
+  }
+  .hero h2{font-size:2.1rem; line-height:1.15;}
+  .hero .eyebrow{
+    text-transform:uppercase; letter-spacing:0.12em; font-size:0.78rem;
+    font-weight:700; color:var(--gold-deep); margin-bottom:10px; display:block;
+  }
+  .hero p.lead{color:var(--ink-soft); font-size:1.05rem; margin-top:14px;}
+  .cta-row{display:flex; gap:12px; margin-top:22px; flex-wrap:wrap;}
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:13px 22px; border-radius:999px; border:none; font-weight:700;
+    font-size:1rem; cursor:pointer; transition:transform 0.1s, box-shadow 0.1s;
+  }
+  .btn-primary{background:var(--teal); color:#fff; box-shadow:0 6px 16px rgba(34,97,92,0.30);}
+  .btn-primary:hover{transform:translateY(-1px);}
+  .btn-secondary{background:var(--surface-2); color:var(--teal-dark);}
+  .btn-secondary:hover{background:#e4ddcc;}
+  .btn:disabled{opacity:0.5; cursor:not-allowed; transform:none;}
+
+  .hero-gauge-preview{
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  .info-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-bottom:24px;}
+  .info-card{
+    background:var(--surface); border-radius:var(--radius); padding:22px;
+    box-shadow:var(--shadow);
+  }
+  .info-card .num{
+    font-family:'Fraunces',serif; font-weight:700; color:var(--gold-deep);
+    font-size:1.6rem; display:block; margin-bottom:6px;
+  }
+  .info-card h3{font-size:1.05rem; margin-bottom:6px;}
+  .info-card p{color:var(--ink-soft); font-size:0.94rem; margin:0;}
+
+  .precautions-box{
+    background:var(--alert-bg); border:1px solid #EAC3BC; border-radius:var(--radius);
+    padding:22px 24px; margin-bottom:24px;
+  }
+  .precautions-box h3{color:var(--alert); display:flex; align-items:center; gap:8px; margin-bottom:10px;}
+  .precautions-box ul{margin:0; padding-left:22px; color:#5c2a24;}
+  .precautions-box li{margin-bottom:4px;}
+
+  .setup-box{
+    background:var(--surface); border-radius:var(--radius); padding:22px 24px;
+    box-shadow:var(--shadow); margin-bottom:24px;
+  }
+  .setup-box ol{padding-left:22px; color:var(--ink-soft);}
+  .setup-box li{margin-bottom:6px;}
+
+  .disclaimer{
+    font-size:0.85rem; color:var(--ink-soft); background:var(--surface-2);
+    border-radius:var(--radius-sm); padding:14px 18px; margin-bottom:8px;
+  }
+
+  /* ---------- Trainer layout (ROM + ADL) ---------- */
+  .trainer-grid{
+    display:grid; grid-template-columns:1.4fr 1fr; gap:20px; align-items:start;
+  }
+  @media (max-width:880px){ .trainer-grid{grid-template-columns:1fr;} .hero{grid-template-columns:1fr;} .info-grid{grid-template-columns:1fr;} }
+
+  .stage-card{
+    background:#10201d; border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow);
+    position:relative;
+  }
+  .stage-wrap{position:relative; width:100%; aspect-ratio:4/3; background:#0c1a17;}
+  video{display:none;}
+  canvas.stage{width:100%; height:100%; display:block;}
+  .stage-placeholder{
+    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; color:#CFE3DC; text-align:center; padding:24px; gap:14px;
+  }
+  .stage-placeholder .icon{font-size:2.6rem;}
+  .stage-controls{
+    display:flex; align-items:center; gap:10px; padding:14px 16px; background:#0e2a26;
+    flex-wrap:wrap;
+  }
+  .stage-controls .grow{flex:1;}
+  select.pill, .pill-toggle{
+    background:#173a35; color:#fff; border:1px solid #2a5850; border-radius:999px;
+    padding:9px 14px; font-size:0.9rem; font-weight:700; cursor:pointer;
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  select.pill{ appearance:none; padding-right:24px; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23ffffff' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; }
+  .cam-status{font-size:0.82rem; color:#9DC4B9;}
+
+  /* Full Screen Overlay Styling */
+  .stage-card.is-fullscreen{
+    position:fixed; inset:0; z-index:9999; border-radius:0; width:100vw; height:100vh;
+    display:flex; flex-direction:column; background:#000;
+  }
+  .stage-card.is-fullscreen .stage-wrap{
+    flex:1; aspect-ratio:auto; height:100%; width:100%;
+  }
+
+  /* Compact HUD box in lower right corner when in fullscreen */
+  .fullscreen-hud{
+    display:none;
+    position:absolute;
+    bottom:20px;
+    right:20px;
+    background:rgba(15, 35, 32, 0.88);
+    backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,0.18);
+    border-radius:var(--radius-sm);
+    padding:12px 16px;
+    color:#fff;
+    box-shadow:0 10px 30px rgba(0,0,0,0.5);
+    z-index:20;
+    min-width:180px;
+  }
+  .stage-card.is-fullscreen .fullscreen-hud{ display:block; }
+  .fullscreen-hud .hud-title{ font-size:0.75rem; text-transform:uppercase; color:#9DC4B9; letter-spacing:0.08em; font-weight:700; margin-bottom:4px; }
+  .fullscreen-hud .hud-val{ font-family:'Fraunces', serif; font-size:1.8rem; font-weight:700; color:#FFE9BE; line-height:1.1; }
+  .fullscreen-hud .hud-sub{ font-size:0.88rem; font-weight:700; color:#9BC0AC; margin-top:4px; display:flex; gap:12px; }
+
+  /* Cheer Overlay Banner */
+  .cheer-overlay{
+    position:absolute; inset:0; background:rgba(21, 63, 60, 0.88);
+    display:none; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:24px; color:#fff; z-index:30;
+    backdrop-filter:blur(6px); animation:fadeIn 0.3s ease-out;
+  }
+  .cheer-overlay.show{ display:flex; }
+  .cheer-card{
+    background:#153F3C; border:2px solid var(--gold); border-radius:var(--radius);
+    padding:28px 32px; max-width:400px; box-shadow:0 12px 36px rgba(0,0,0,0.4);
+  }
+  .cheer-card h3{ font-size:1.8rem; color:var(--gold); margin-bottom:8px; }
+  .cheer-card p{ font-size:1.05rem; color:#EFEAE0; margin-bottom:18px; }
+
+  @keyframes fadeIn{ from{opacity:0; transform:scale(0.95);} to{opacity:1; transform:scale(1);} }
+
+  .side-panel{display:flex; flex-direction:column; gap:16px;}
+  .panel-card{
+    background:var(--surface); border-radius:var(--radius); padding:20px 22px;
+    box-shadow:var(--shadow);
+  }
+  .panel-card h3{font-size:1.02rem; margin-bottom:12px; display:flex; align-items:center; gap:8px;}
+
+  .joint-select{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;}
+  .joint-btn{
+    border:2px solid var(--line); background:#fff; color:var(--ink);
+    padding:10px 16px; border-radius:999px; font-weight:700; font-size:0.92rem; cursor:pointer;
+  }
+  .joint-btn.active{ background:var(--teal); border-color:var(--teal); color:#fff; }
+
+  .slider-row{margin-bottom:10px;}
+  .slider-row label{display:flex; justify-content:space-between; font-size:0.88rem; color:var(--ink-soft); margin-bottom:4px; font-weight:700;}
+  input[type=range]{width:100%; accent-color:var(--teal);}
+
+  .select-group{ display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
+  .select-group label{ font-size:0.88rem; color:var(--ink-soft); font-weight:700; }
+  .select-group select{
+    width:100%; padding:10px 14px; border-radius:var(--radius-sm); border:1px solid var(--line);
+    background:var(--surface-2); font-size:0.92rem; font-weight:700; color:var(--ink);
+  }
+
+  .checkbox-row{display:flex; align-items:center; gap:10px; margin-top:6px; padding:12px; background:var(--surface-2); border-radius:var(--radius-sm);}
+  .checkbox-row input{width:20px; height:20px; accent-color:var(--alert);}
+  .checkbox-row label{font-weight:700; font-size:0.92rem;}
+
+  /* Gauge */
+  .gauge-wrap{display:flex; flex-direction:column; align-items:center; gap:6px;}
+  .gauge-value{font-family:'Fraunces',serif; font-size:2.6rem; font-weight:700; color:var(--teal-dark); line-height:1;}
+  .gauge-label{font-size:0.85rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.08em; font-weight:700;}
+
+  .score-row{display:flex; align-items:center; justify-content:space-between; margin-top:10px;}
+  .score-pill{
+    display:flex; align-items:center; gap:8px; background:var(--amber-bg); color:var(--gold-deep);
+    padding:8px 16px; border-radius:999px; font-weight:700; position:relative;
+  }
+  .coin-fx{
+    position:absolute; left:50%; top:-6px; transform:translateX(-50%);
+    font-size:1.2rem; opacity:0; pointer-events:none;
+  }
+  .coin-fx.pop{ animation: coinPop 0.9s ease-out forwards; }
+  @keyframes coinPop{
+    0%{ opacity:1; transform:translate(-50%,0) scale(0.6);}
+    30%{ transform:translate(-50%,-22px) scale(1.15); opacity:1;}
+    100%{ transform:translate(-50%,-46px) scale(1); opacity:0;}
+  }
+  .reset-link{background:none;border:none;color:var(--ink-soft);text-decoration:underline;cursor:pointer;font-size:0.85rem;}
+
+  .timer-pill{
+    display:inline-flex; align-items:center; gap:6px; background:var(--surface-2);
+    padding:6px 14px; border-radius:999px; font-weight:700; font-size:0.9rem; color:var(--teal-dark);
+  }
+
+  .banner{
+    border-radius:var(--radius-sm); padding:14px 16px; font-weight:700; display:none;
+    align-items:center; gap:10px; margin-top:6px;
+  }
+  .banner.show{display:flex;}
+  .banner.safe{background:var(--safe-bg); color:#1f5c3c;}
+  .banner.approaching{background:var(--amber-bg); color:var(--gold-deep);}
+  .banner.exceeded{background:var(--alert); color:#fff; animation:flash 0.6s infinite;}
+  @keyframes flash{ 0%,100%{filter:brightness(1);} 50%{filter:brightness(1.25);} }
+
+  /* ADL steps */
+  .step-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px;}
+  .step-list li{
+    display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:var(--radius-sm);
+    background:var(--surface-2); color:var(--ink-soft); font-size:0.92rem; font-weight:700;
+  }
+  .step-list li.current{background:var(--teal); color:#fff;}
+  .step-list li.done{background:var(--safe-bg); color:#1f5c3c;}
+  .step-list .dot{width:22px; height:22px; border-radius:50%; background:rgba(0,0,0,0.12); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:0.78rem;}
+  .step-list li.current .dot{background:rgba(255,255,255,0.25);}
+  .step-list li.done .dot{background:#2f8a5b; color:#fff;}
+
+  .angle-trio{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; text-align:center;}
+  .angle-trio div{background:var(--surface-2); border-radius:var(--radius-sm); padding:10px 4px;}
+  .angle-trio .v{font-family:'Fraunces',serif; font-weight:700; font-size:1.35rem; color:var(--teal-dark); display:block;}
+  .angle-trio .l{font-size:0.72rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.05em;}
+
+  footer{text-align:center; color:var(--ink-soft); font-size:0.85rem; padding:30px 24px 40px;}
+
+  .visually-hidden{position:absolute; width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
+
+  @media (prefers-reduced-motion: reduce){
+    .coin-fx.pop{animation:none; opacity:1;}
+    .banner.exceeded{animation:none;}
+  }
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<header class="site">
+  <div class="brand">
+    <div class="brand-mark">OT</div>
+    <div>
+      <h1>YCH OT AI Trainer</h1>
+      <p>Camera-guided hip fracture &amp; hip replacement rehab</p>
+    </div>
+  </div>
+  <nav class="tabs" aria-label="Main sections">
+    <button data-tab="home" class="active">Home</button>
+    <button data-tab="rom">ROM Training</button>
+    <button data-tab="adl">ADL Training</button>
+  </nav>
+</header>
+
+<main id="main">
+
+  <!-- ============ HOME ============ -->
+  <section class="view active" id="view-home">
+    <div class="hero">
+      <div>
+        <span class="eyebrow">Motion-tracking rehab, no wearables needed</span>
+        <h2>Turn any phone, tablet or laptop camera into a hip-precaution-aware training partner.</h2>
+        <p class="lead">YCH OT AI Trainer watches your movement through the camera, measures joint angles in real time, and gamifies range-of-motion and daily-dressing practice — with a built-in reminder the moment hip flexion approaches 90°.</p>
+        <div class="cta-row">
+          <button class="btn btn-primary" data-goto="rom">Start ROM Training →</button>
+          <button class="btn btn-secondary" data-goto="adl">Start ADL Training →</button>
+        </div>
+      </div>
+      <div class="hero-gauge-preview">
+        <svg viewBox="0 0 200 120" width="100%" style="max-width:320px">
+          <path d="M 15 105 A 85 85 0 0 1 185 105" fill="none" stroke="#E4DFD2" stroke-width="14" stroke-linecap="round"/>
+          <path d="M 118 27 A 85 85 0 0 1 185 105" fill="none" stroke="#C0392B" stroke-width="14" stroke-linecap="round" opacity="0.75"/>
+          <path d="M 15 105 A 85 85 0 0 1 90 21" fill="none" stroke="#E3A23C" stroke-width="14" stroke-linecap="round"/>
+          <line x1="100" y1="105" x2="55" y2="48" stroke="#153F3C" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="100" cy="105" r="8" fill="#153F3C"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card"><span class="num">01</span><h3>ROM Training</h3><p>Select hip, knee or ankle. Set target goals and hit the stationary target box with your limb to log reps.</p></div>
+      <div class="info-card"><span class="num">02</span><h3>ADL Training</h3><p>Practice putting on and taking off lower-body clothing in the correct sequence, seated, with live joint tracking.</p></div>
+      <div class="info-card"><span class="num">03</span><h3>Hip Precaution Guard</h3><p>Optional real-time alert that warns you with sound and colour the moment hip flexion nears or passes 90°.</p></div>
+    </div>
+
+    <div class="precautions-box">
+      <h3>⚠ General hip precaution reference</h3>
+      <ul>
+        <li>Avoid bending the operated hip past 90° (e.g. low chairs, low toilets, tying shoes).</li>
+        <li>Avoid crossing the operated leg over the midline of the body.</li>
+        <li>Avoid twisting the operated leg inward or outward.</li>
+        <li>Always follow the specific precautions given by your surgeon or therapist — they may differ from these general defaults.</li>
+      </ul>
+    </div>
+
+    <div class="setup-box">
+      <h3 style="margin-bottom:10px;">Getting set up</h3>
+      <ol>
+        <li>Prop your phone, tablet or laptop about 1.5–2 m away so your whole body fits in the frame.</li>
+        <li>Sit or stand side-on to the camera for ROM training so the joint angle is clearly visible.</li>
+        <li>Make sure the room is well lit and clothing contrasts with the background if possible.</li>
+        <li>Allow camera access when your browser asks — video never leaves your device.</li>
+        <li>Have a caregiver or therapist nearby the first few times you try a new exercise.</li>
+      </ol>
+    </div>
+
+    <div class="disclaimer">
+      This tool is a training aid, not a medical device. It does not diagnose, and its angle readings are estimates from camera-based tracking, not clinical-grade goniometry. Always exercise within the limits set by your surgeon or therapist, and stop if you feel pain, dizziness, or instability.
+    </div>
+  </section>
+
+  <!-- ============ ROM TRAINING ============ -->
+  <section class="view" id="view-rom">
+    <div class="trainer-grid">
+      <div>
+        <div class="stage-card" id="rom-stage-card">
+          <div class="stage-wrap" id="rom-stage-wrap">
+            <video id="rom-video" playsinline muted></video>
+            <canvas class="stage" id="rom-canvas"></canvas>
+
+            <!-- Fullscreen Lower Right Corner Display -->
+            <div class="fullscreen-hud" id="rom-fullscreen-hud">
+              <div class="hud-title" id="rom-hud-title">Hip Angle</div>
+              <div class="hud-val" id="rom-hud-angle">--°</div>
+              <div class="hud-sub">
+                <span>🪙 <span id="rom-hud-score">0</span> hits</span>
+                <span id="rom-hud-timer">⏱ --:--</span>
+              </div>
+            </div>
+
+            <!-- Rep Completion Celebration Banner -->
+            <div class="cheer-overlay" id="rom-cheer-overlay">
+              <div class="cheer-card">
+                <div style="font-size:3rem; margin-bottom:8px;">🎉🥳</div>
+                <h3>Goal Reached!</h3>
+                <p id="rom-cheer-msg">Awesome job completing your target reps!</p>
+                <button class="btn btn-primary" id="rom-cheer-btn">Continue Training</button>
+              </div>
+            </div>
+
+            <div class="stage-placeholder" id="rom-placeholder">
+              <div class="icon">🎥</div>
+              <p>Turn on your camera to begin hip, knee or ankle range-of-motion training.</p>
+              <button class="btn btn-primary" id="rom-start-btn">Turn on camera</button>
+              <p class="cam-status" id="rom-cam-status"></p>
+            </div>
+          </div>
+
+          <div class="stage-controls">
+            <button class="pill-toggle" id="rom-stop-btn" style="display:none;">Stop camera</button>
+            <button class="pill-toggle" id="rom-flip-btn" style="display:none;">Flip camera</button>
+            <button class="pill-toggle" id="rom-fullscreen-btn" style="display:none;">⛶ Full Screen</button>
+            <span class="grow"></span>
+            <span class="cam-status" id="rom-body-status">Camera off</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-panel">
+        <div class="panel-card">
+          <h3>Choose joint</h3>
+          <div class="joint-select">
+            <button class="joint-btn active" data-joint="hip">Hip</button>
+            <button class="joint-btn" data-joint="knee">Knee</button>
+            <button class="joint-btn" data-joint="ankle">Ankle</button>
+          </div>
+          <div class="joint-select">
+            <button class="joint-btn active" data-side="right">Right side</button>
+            <button class="joint-btn" data-side="left">Left side</button>
+          </div>
+
+          <div class="slider-row">
+            <label><span>Target minimum</span><span id="rom-min-val">30°</span></label>
+            <input type="range" id="rom-min" min="0" max="180" value="30">
+          </div>
+          <div class="slider-row">
+            <label><span>Target maximum</span><span id="rom-max-val">60°</span></label>
+            <input type="range" id="rom-max" min="0" max="180" value="60">
+          </div>
+
+          <!-- Session Goal Settings Panel -->
+          <div style="border-top:1px solid var(--line); margin-top:14px; padding-top:12px;">
+            <h4 style="font-size:0.92rem; margin:0 0 10px 0; color:var(--teal-dark);">Session Target Panel</h4>
+            <div class="select-group">
+              <label for="rom-duration-select">Time Duration</label>
+              <select id="rom-duration-select">
+                <option value="0">Unlimited</option>
+                <option value="180">3 mins</option>
+                <option value="300">5 mins</option>
+                <option value="600">10 mins</option>
+                <option value="900">15 mins</option>
+              </select>
+            </div>
+            <div class="select-group">
+              <label for="rom-hits-select">Targeted Hits</label>
+              <select id="rom-hits-select">
+                <option value="0">Unlimited</option>
+                <option value="20">20 hits</option>
+                <option value="30">30 hits</option>
+                <option value="50">50 hits</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="checkbox-row" id="rom-precaution-row">
+            <input type="checkbox" id="rom-precaution-toggle">
+            <label for="rom-precaution-toggle">Enable hip precaution reminder (90° limit)</label>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <h3 id="rom-gauge-title">Live hip angle</h3>
+          <div class="gauge-wrap">
+            <svg viewBox="0 0 200 115" width="220" id="rom-gauge-svg">
+              <path id="rom-gauge-bg" fill="none" stroke="#E4DFD2" stroke-width="16" stroke-linecap="round"/>
+              <path id="rom-gauge-danger" fill="none" stroke="#C0392B" stroke-width="16" stroke-linecap="round" opacity="0.55" style="display:none;"/>
+              <path id="rom-gauge-target" fill="none" stroke="#E3A23C" stroke-width="16" stroke-linecap="round"/>
+              <line id="rom-gauge-needle" x1="100" y1="100" x2="100" y2="30" stroke="#153F3C" stroke-width="5" stroke-linecap="round"/>
+              <circle cx="100" cy="100" r="7" fill="#153F3C"/>
+            </svg>
+            <div class="gauge-value" id="rom-angle-value">--°</div>
+            <div class="gauge-label">current angle</div>
+          </div>
+          
+          <div class="score-row">
+            <div class="score-pill">
+              <span class="coin-fx" id="rom-coin-fx">🪙</span>
+              🪙 <span id="rom-score">0</span> hits
+            </div>
+            <div class="timer-pill">
+              ⏱ <span id="rom-timer-display">--:--</span>
+            </div>
+            <button class="reset-link" id="rom-reset-score">Reset</button>
+          </div>
+          <div class="banner safe" id="rom-precaution-banner">Within safe range</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ADL TRAINING ============ -->
+  <section class="view" id="view-adl">
+    <div class="trainer-grid">
+      <div>
+        <div class="stage-card" id="adl-stage-card">
+          <div class="stage-wrap" id="adl-stage-wrap">
+            <video id="adl-video" playsinline muted></video>
+            <canvas class="stage" id="adl-canvas"></canvas>
+            
+            <div class="fullscreen-hud" id="adl-fullscreen-hud">
+              <div class="hud-title">Dressing Tracking</div>
+              <div class="hud-val" id="adl-hud-hip">Hip: --°</div>
+              <div class="hud-sub">
+                <span id="adl-hud-knee">Knee: --°</span>
+                <span id="adl-hud-step">Step 1</span>
+              </div>
+            </div>
+
+            <div class="stage-placeholder" id="adl-placeholder">
+              <div class="icon">🩳</div>
+              <p>Sit facing the camera, side-on, with your feet visible. Turn on the camera to begin dressing practice.</p>
+              <button class="btn btn-primary" id="adl-start-btn">Turn on camera</button>
+              <p class="cam-status" id="adl-cam-status"></p>
+            </div>
+          </div>
+          <div class="stage-controls">
+            <button class="pill-toggle" id="adl-stop-btn" style="display:none;">Stop camera</button>
+            <button class="pill-toggle" id="adl-flip-btn" style="display:none;">Flip camera</button>
+            <button class="pill-toggle" id="adl-fullscreen-btn" style="display:none;">⛶ Full Screen</button>
+            <span class="grow"></span>
+            <span class="cam-status" id="adl-body-status">Camera off</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-panel">
+        <div class="panel-card">
+          <h3>Dressing: lower garment</h3>
+          <div class="joint-select">
+            <button class="joint-btn active" data-adl-side="right">Right leg</button>
+            <button class="joint-btn" data-adl-side="left">Left leg</button>
+          </div>
+          <div class="cta-row" style="margin-top:0;">
+            <button class="btn btn-secondary" id="adl-restart-btn">Restart sequence</button>
+          </div>
+          <ol class="step-list" id="adl-step-list" style="margin-top:14px;"></ol>
+
+          <div class="checkbox-row">
+            <input type="checkbox" id="adl-precaution-toggle">
+            <label for="adl-precaution-toggle">Enable hip precaution reminder (90° limit)</label>
+          </div>
+          <div class="banner safe" id="adl-precaution-banner">Within safe range</div>
+        </div>
+
+        <div class="panel-card">
+          <h3>Live joint tracking</h3>
+          <div class="angle-trio">
+            <div><span class="v" id="adl-hip-val">--°</span><span class="l">Hip</span></div>
+            <div><span class="v" id="adl-knee-val">--°</span><span class="l">Knee</span></div>
+            <div><span class="v" id="adl-ankle-val">--°</span><span class="l">Ankle</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  YCH OT AI Trainer — a camera-based motion training aid. Not a diagnostic or medical device. All video processing happens locally in your browser; nothing is uploaded.<br>
+  Inspired by the concept of gamified, motion-tracking rehabilitation training seen in systems such as iTraining by IF Interactive.
+</footer>
+
+<script type="module">
+import { PoseLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
+
+/* ---------------------------------------------------------------
+   Landmark indices (BlazePose / MediaPipe 33-point model)
+---------------------------------------------------------------- */
+const LM = {
+  shoulder: { right: 12, left: 11 },
+  hip:      { right: 24, left: 23 },
+  knee:     { right: 26, left: 25 },
+  ankle:    { right: 28, left: 27 },
+  foot:     { right: 32, left: 31 },
+  wrist:    { right: 16, left: 15 },
+};
+
+function angleDeg(A, B, C) {
+  if (!A || !B || !C) return null;
+  const v1 = { x: A.x - B.x, y: A.y - B.y };
+  const v2 = { x: C.x - B.x, y: C.y - B.y };
+  const m1 = Math.hypot(v1.x, v1.y), m2 = Math.hypot(v2.x, v2.y);
+  if (m1 === 0 || m2 === 0) return null;
+  let cos = (v1.x * v2.x + v1.y * v2.y) / (m1 * m2);
+  cos = Math.max(-1, Math.min(1, cos));
+  return Math.acos(cos) * 180 / Math.PI;
+}
+function dist(A, B) { return Math.hypot(A.x - B.x, A.y - B.y); }
+
+/* ---------------------------------------------------------------
+   Audio feedback (Web Audio API — no asset files needed)
+---------------------------------------------------------------- */
+let actx = null;
+function ensureAudio() { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); return actx; }
+function tone(freq, dur, type = "sine", gain = 0.18, delay = 0) {
+  const ctx = ensureAudio();
+  const osc = ctx.createOscillator();
+  const g = ctx.createGain();
+  osc.type = type; osc.frequency.value = freq;
+  g.gain.value = gain;
+  osc.connect(g); g.connect(ctx.destination);
+  const t0 = ctx.currentTime + delay;
+  g.gain.setValueAtTime(gain, t0);
+  g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+  osc.start(t0); osc.stop(t0 + dur + 0.02);
+}
+function playSuccess() { tone(988, 0.09, "square", 0.16, 0); tone(1319, 0.16, "square", 0.16, 0.09); }
+function playCaution() { tone(300, 0.16, "square", 0.22, 0); tone(520, 0.16, "square", 0.22, 0.16); }
+function playStepDing() { tone(660, 0.1, "triangle", 0.16, 0); }
+
+/* Rep Completion Cheer Fanfare Audio */
+function playCheerFanfare() {
+  const notes = [523.25, 659.25, 783.99, 1046.50, 880, 1046.50]; // C5, E5, G5, C6, A5, C6
+  notes.forEach((freq, idx) => {
+    tone(freq, 0.28, "triangle", 0.25, idx * 0.12);
+  });
+}
+
+/* ---------------------------------------------------------------
+   Geometry & Vector Helpers
+---------------------------------------------------------------- */
+function normalize(v) { const m = Math.hypot(v.x, v.y) || 1; return { x: v.x / m, y: v.y / m }; }
+function sub(a, b) { return { x: a.x - b.x, y: a.y - b.y }; }
+function crossZ(a, b) { return a.x * b.y - a.y * b.x; }
+function rotateVec(v, rad) {
+  const c = Math.cos(rad), s = Math.sin(rad);
+  return { x: v.x * c - v.y * s, y: v.x * s + v.y * c };
+}
+
+/* ---------------------------------------------------------------
+   Mario-style brick target box + coin rendering
+---------------------------------------------------------------- */
+function drawBrickBox(ctx, cx, cy, size, bounce, glow) {
+  ctx.save();
+  ctx.translate(cx, cy - bounce);
+  if (glow) {
+    const g = ctx.createRadialGradient(0, 0, size * 0.2, 0, 0, size * 1.15);
+    g.addColorStop(0, "rgba(255,214,102,0.65)");
+    g.addColorStop(1, "rgba(255,214,102,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(0, 0, size * 1.15, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.fillStyle = "rgba(0,0,0,0.28)";
+  ctx.beginPath(); ctx.ellipse(0, size * 0.62, size * 0.42, size * 0.12, 0, 0, Math.PI * 2); ctx.fill();
+  const grad = ctx.createLinearGradient(0, -size / 2, 0, size / 2);
+  grad.addColorStop(0, "#E7984E"); grad.addColorStop(1, "#AE5F24");
+  ctx.fillStyle = grad;
+  ctx.fillRect(-size / 2, -size / 2, size, size);
+  ctx.fillStyle = "rgba(255,255,255,0.28)";
+  ctx.fillRect(-size / 2, -size / 2, size, size * 0.16);
+  ctx.strokeStyle = "#6E3A15"; ctx.lineWidth = Math.max(3, size * 0.07);
+  ctx.strokeRect(-size / 2, -size / 2, size, size);
+  ctx.lineWidth = Math.max(2, size * 0.045);
+  ctx.beginPath();
+  ctx.moveTo(-size / 2, 0); ctx.lineTo(size / 2, 0);
+  ctx.moveTo(-size / 4, -size / 2); ctx.lineTo(-size / 4, 0);
+  ctx.moveTo(size / 4, 0); ctx.lineTo(size / 4, size / 2);
+  ctx.stroke();
+  ctx.font = `bold ${Math.round(size * 0.52)}px sans-serif`;
+  ctx.fillStyle = "#FFE9BE"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText("?", 0, size * 0.03);
+  ctx.restore();
+}
+
+function drawCoin(ctx, x, y, scaleX, alpha, r) {
+  ctx.save();
+  ctx.globalAlpha = Math.max(0, alpha);
+  ctx.translate(x, y);
+  ctx.scale(scaleX, 1);
+  const g = ctx.createRadialGradient(-r * 0.3, -r * 0.3, r * 0.2, 0, 0, r);
+  g.addColorStop(0, "#FFF4C2"); g.addColorStop(0.55, "#F4C430"); g.addColorStop(1, "#B9860B");
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = "#8A5E00"; ctx.lineWidth = Math.max(1, r * 0.16); ctx.stroke();
+  ctx.restore();
+}
+
+function drawCoinParticles(ctx, particles, now) {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    const age = now - p.born;
+    if (age > 800) { particles.splice(i, 1); continue; }
+    const t = age / 800;
+    const y = p.y - t * 80;
+    const alpha = 1 - t;
+    const scaleX = Math.cos(age / 40);
+    drawCoin(ctx, p.x, y, scaleX, alpha, 16);
+  }
+}
+
+/* ---------------------------------------------------------------
+   SVG gauge helpers
+---------------------------------------------------------------- */
+function pointOnGauge(cx, cy, r, value) {
+  const a = (180 - value) * Math.PI / 180;
+  return { x: cx + r * Math.cos(a), y: cy - r * Math.sin(a) };
+}
+function describeGaugeArc(cx, cy, r, v1, v2) {
+  const p1 = pointOnGauge(cx, cy, r, v1);
+  const p2 = pointOnGauge(cx, cy, r, v2);
+  const largeArc = Math.abs(v2 - v1) > 180 ? 1 : 0;
+  return `M ${p1.x} ${p1.y} A ${r} ${r} 0 ${largeArc} 1 ${p2.x} ${p2.y}`;
+}
+
+/* ---------------------------------------------------------------
+   Shared PoseLandmarker Loader
+---------------------------------------------------------------- */
+let sharedLandmarker = null;
+async function getLandmarker() {
+  if (sharedLandmarker) return sharedLandmarker;
+  const vision = await FilesetResolver.forVisionTasks(
+    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+  );
+  try {
+    sharedLandmarker = await PoseLandmarker.createFromOptions(vision, {
+      baseOptions: {
+        modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/latest/pose_landmarker_lite.task",
+        delegate: "GPU"
+      },
+      runningMode: "VIDEO",
+      numPoses: 1
+    });
+  } catch (e) {
+    sharedLandmarker = await PoseLandmarker.createFromOptions(vision, {
+      baseOptions: {
+        modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/latest/pose_landmarker_lite.task",
+        delegate: "CPU"
+      },
+      runningMode: "VIDEO",
+      numPoses: 1
+    });
+  }
+  return sharedLandmarker;
+}
+
+const BONES = [
+  [11,12],[11,23],[12,24],[23,24],
+  [11,13],[13,15],[12,14],[14,16],
+  [23,25],[25,27],[27,31],[27,29],
+  [24,26],[26,28],[28,32],[28,30]
+];
+
+/* =================================================================
+   CAMERA CONTROLLER — one instance per stage (ROM / ADL)
+================================================================= */
+class Stage {
+  constructor(opts) {
+    this.stageCard = document.getElementById(opts.stageCardId);
+    this.video = document.getElementById(opts.videoId);
+    this.canvas = document.getElementById(opts.canvasId);
+    this.ctx = this.canvas.getContext("2d");
+    this.placeholder = document.getElementById(opts.placeholderId);
+    this.startBtn = document.getElementById(opts.startBtnId);
+    this.stopBtn = document.getElementById(opts.stopBtnId);
+    this.flipBtn = document.getElementById(opts.flipBtnId);
+    this.fullscreenBtn = document.getElementById(opts.fullscreenBtnId);
+    this.camStatus = document.getElementById(opts.camStatusId);
+    this.bodyStatus = document.getElementById(opts.bodyStatusId);
+    this.onFrame = opts.onFrame || function(){};
+    this.facing = "user";
+    this.running = false;
+    this.lastVideoTime = -1;
+    this.stream = null;
+    this.smoothedLandmarks = null;
+
+    this.startBtn.addEventListener("click", () => this.start());
+    this.stopBtn.addEventListener("click", () => this.stop());
+    this.flipBtn.addEventListener("click", () => this.flip());
+    if (this.fullscreenBtn) {
+      this.fullscreenBtn.addEventListener("click", () => this.toggleFullscreen());
+    }
+
+    // Handle ESC / exit fullscreen events
+    document.addEventListener("fullscreenchange", () => this.onFullscreenChange());
+    document.addEventListener("webkitfullscreenchange", () => this.onFullscreenChange());
+  }
+
+  async start() {
+    ensureAudio();
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      this.camStatus.textContent = "This browser does not support camera access. Try Chrome, Safari or Edge over HTTPS.";
+      return;
+    }
+    this.camStatus.textContent = "Requesting camera permission…";
+    try {
+      this.landmarker = await getLandmarker();
+    } catch (e) {
+      this.camStatus.textContent = "Could not load motion-tracking model. Check connection and reload.";
+      return;
+    }
+    try {
+      this.stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: this.facing, width: { ideal: 960 }, height: { ideal: 720 } },
+        audio: false
+      });
+      this.video.srcObject = this.stream;
+      await this.video.play();
+      this.canvas.width = this.video.videoWidth || 960;
+      this.canvas.height = this.video.videoHeight || 720;
+      this.placeholder.style.display = "none";
+      this.stopBtn.style.display = "inline-flex";
+      this.flipBtn.style.display = "inline-flex";
+      if (this.fullscreenBtn) this.fullscreenBtn.style.display = "inline-flex";
+      this.bodyStatus.textContent = "Camera on — looking for you…";
+      this.running = true;
+      
+      if (this.onStart) this.onStart();
+      requestAnimationFrame((t) => this.loop(t));
+    } catch (e) {
+      this.camStatus.textContent = "Camera permission was denied or no camera was found.";
+    }
+  }
+
+  stop() {
+    this.running = false;
+    if (this.stream) this.stream.getTracks().forEach(t => t.stop());
+    this.placeholder.style.display = "flex";
+    this.stopBtn.style.display = "none";
+    this.flipBtn.style.display = "none";
+    if (this.fullscreenBtn) this.fullscreenBtn.style.display = "none";
+    this.bodyStatus.textContent = "Camera off";
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.smoothedLandmarks = null;
+    if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+  }
+
+  async flip() {
+    this.facing = this.facing === "user" ? "environment" : "user";
+    if (this.stream) this.stream.getTracks().forEach(t => t.stop());
+    try {
+      this.stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: this.facing, width: { ideal: 960 }, height: { ideal: 720 } },
+        audio: false
+      });
+      this.video.srcObject = this.stream;
+      await this.video.play();
+    } catch (e) { /* keep previous silently */ }
+  }
+
+  toggleFullscreen() {
+    if (!this.stageCard) return;
+    if (!document.fullscreenElement && !this.stageCard.classList.contains("is-fullscreen")) {
+      if (this.stageCard.requestFullscreen) {
+        this.stageCard.requestFullscreen().catch(() => this.fallbackFullscreen(true));
+      } else {
+        this.fallbackFullscreen(true);
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => this.fallbackFullscreen(false));
+      } else {
+        this.fallbackFullscreen(false);
+      }
+    }
+  }
+
+  fallbackFullscreen(enable) {
+    if (enable) {
+      this.stageCard.classList.add("is-fullscreen");
+      this.fullscreenBtn.textContent = "✕ Exit Full Screen";
+    } else {
+      this.stageCard.classList.remove("is-fullscreen");
+      this.fullscreenBtn.textContent = "⛶ Full Screen";
+    }
+  }
+
+  onFullscreenChange() {
+    const isFS = document.fullscreenElement === this.stageCard;
+    if (isFS) {
+      this.stageCard.classList.add("is-fullscreen");
+      this.fullscreenBtn.textContent = "✕ Exit Full Screen";
+    } else {
+      this.stageCard.classList.remove("is-fullscreen");
+      this.fullscreenBtn.textContent = "⛶ Full Screen";
+    }
+  }
+
+  loop(timestamp) {
+    if (!this.running) return;
+    if (this.video.readyState >= 2 && this.video.currentTime !== this.lastVideoTime) {
+      this.lastVideoTime = this.video.currentTime;
+      let result = null;
+      try { result = this.landmarker.detectForVideo(this.video, timestamp); } catch (e) {}
+      this.render(result);
+    }
+    requestAnimationFrame((t) => this.loop(t));
+  }
+
+  /* Keypoint Exponential Moving Average (EMA) smoothing for accurate jumping/motion tracking */
+  applyKeypointSmoothing(rawLandmarks) {
+    if (!rawLandmarks) {
+      this.smoothedLandmarks = null;
+      return null;
+    }
+    if (!this.smoothedLandmarks || this.smoothedLandmarks.length !== rawLandmarks.length) {
+      this.smoothedLandmarks = rawLandmarks.map(p => ({ x: p.x, y: p.y, z: p.z }));
+      return this.smoothedLandmarks;
+    }
+    const alpha = 0.32; // Smoothing factor (lower = smoother against jumps/flicker)
+    for (let i = 0; i < rawLandmarks.length; i++) {
+      this.smoothedLandmarks[i].x = this.smoothedLandmarks[i].x * (1 - alpha) + rawLandmarks[i].x * alpha;
+      this.smoothedLandmarks[i].y = this.smoothedLandmarks[i].y * (1 - alpha) + rawLandmarks[i].y * alpha;
+      this.smoothedLandmarks[i].z = (this.smoothedLandmarks[i].z || 0) * (1 - alpha) + (rawLandmarks[i].z || 0) * alpha;
+    }
+    return this.smoothedLandmarks;
+  }
+
+  render(result) {
+    const ctx = this.ctx, w = this.canvas.width, h = this.canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    ctx.save();
+    ctx.translate(w, 0); ctx.scale(-1, 1); // mirror video
+    ctx.filter = "blur(6px) saturate(1.05) brightness(0.92)";
+    ctx.drawImage(this.video, 0, 0, w, h);
+    ctx.filter = "none";
+
+    let rawLandmarks = (result && result.landmarks && result.landmarks.length) ? result.landmarks[0] : null;
+    let landmarks = this.applyKeypointSmoothing(rawLandmarks);
+
+    if (landmarks) {
+      // draw skeleton
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = "rgba(155, 192, 172, 0.9)";
+      BONES.forEach(([a, b]) => {
+        const A = landmarks[a], B = landmarks[b];
+        if (!A || !B) return;
+        ctx.beginPath();
+        ctx.moveTo(A.x * w, A.y * h);
+        ctx.lineTo(B.x * w, B.y * h);
+        ctx.stroke();
+      });
+      [11,12,23,24,25,26,27,28,15,16,31,32].forEach(i => {
+        const P = landmarks[i]; if (!P) return;
+        ctx.beginPath();
+        ctx.arc(P.x * w, P.y * h, 6, 0, Math.PI * 2);
+        ctx.fillStyle = "#E3A23C";
+        ctx.fill();
+      });
+      if (this.bodyStatus) this.bodyStatus.textContent = "Tracking your movement";
+    } else {
+      if (this.bodyStatus) this.bodyStatus.textContent = "No person detected — step back so your whole body is visible";
+    }
+
+    this.onFrame(landmarks, ctx, w, h);
+    ctx.restore();
+  }
+}
+
+/* =================================================================
+   TAB NAVIGATION
+================================================================= */
+const tabButtons = document.querySelectorAll("nav.tabs button");
+const views = { home: document.getElementById("view-home"), rom: document.getElementById("view-rom"), adl: document.getElementById("view-adl") };
+function goto(tab) {
+  tabButtons.forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+  Object.entries(views).forEach(([k, el]) => el.classList.toggle("active", k === tab));
+}
+tabButtons.forEach(b => b.addEventListener("click", () => goto(b.dataset.tab)));
+document.querySelectorAll("[data-goto]").forEach(b => b.addEventListener("click", () => goto(b.dataset.goto)));
+
+/* =================================================================
+   ROM TRAINING & GOAL TIMER STATE
+================================================================= */
+const romState = {
+  joint: "hip",
+  side: "right",
+  min: 30,
+  max: 60,
+  score: 0,
+  targetHitsGoal: 0, // 0 = unlimited, 20, 30, 50
+  durationGoalSec: 0, // 0 = unlimited, 180, 300, 600, 900
+  startTime: null,
+  elapsedSec: 0,
+  timerInterval: null,
+  isGoalCompleted: false,
+  smoothedAngle: null,
+  wasInside: false,
+  cooldownUntil: 0,
+  precautionOn: false,
+  precautionStatus: "safe",
+  warningInterval: null,
+  rotSign: 1,
+  boxBounceUntil: 0,
+  stationaryBoxPx: null, // Statically correlated box position for max angle
+  coinParticles: []
+};
+
+const romMinSlider = document.getElementById("rom-min");
+const romMaxSlider = document.getElementById("rom-max");
+const romMinVal = document.getElementById("rom-min-val");
+const romMaxVal = document.getElementById("rom-max-val");
+const romAngleValue = document.getElementById("rom-angle-value");
+const romGaugeTitle = document.getElementById("rom-gauge-title");
+const romScoreEl = document.getElementById("rom-score");
+const romCoinFx = document.getElementById("rom-coin-fx");
+const romPrecautionRow = document.getElementById("rom-precaution-row");
+const romPrecautionToggle = document.getElementById("rom-precaution-toggle");
+const romPrecautionBanner = document.getElementById("rom-precaution-banner");
+
+const romDurationSelect = document.getElementById("rom-duration-select");
+const romHitsSelect = document.getElementById("rom-hits-select");
+const romTimerDisplay = document.getElementById("rom-timer-display");
+
+const romHudTitle = document.getElementById("rom-hud-title");
+const romHudAngle = document.getElementById("rom-hud-angle");
+const romHudScore = document.getElementById("rom-hud-score");
+const romHudTimer = document.getElementById("rom-hud-timer");
+
+const romCheerOverlay = document.getElementById("rom-cheer-overlay");
+const romCheerMsg = document.getElementById("rom-cheer-msg");
+const romCheerBtn = document.getElementById("rom-cheer-btn");
+
+function updateGoalDisplays() {
+  let timerStr = "--:--";
+  if (romState.durationGoalSec > 0) {
+    const remain = Math.max(0, romState.durationGoalSec - romState.elapsedSec);
+    const m = Math.floor(remain / 60).toString().padStart(2, "0");
+    const s = Math.floor(remain % 60).toString().padStart(2, "0");
+    timerStr = `${m}:${s}`;
+  } else {
+    const m = Math.floor(romState.elapsedSec / 60).toString().padStart(2, "0");
+    const s = Math.floor(romState.elapsedSec % 60).toString().padStart(2, "0");
+    timerStr = `${m}:${s}`;
+  }
+  romTimerDisplay.textContent = timerStr;
+  romHudTimer.textContent = `⏱ ${timerStr}`;
+  romHudScore.textContent = romState.score;
+}
+
+function startRomTimer() {
+  if (romState.timerInterval) clearInterval(romState.timerInterval);
+  romState.startTime = Date.now();
+  romState.timerInterval = setInterval(() => {
+    if (!romStage.running || romState.isGoalCompleted) return;
+    romState.elapsedSec = Math.floor((Date.now() - romState.startTime) / 1000);
+    updateGoalDisplays();
+    checkGoalConditions();
+  }, 1000);
+}
+
+function resetRomState() {
+  romState.score = 0;
+  romState.elapsedSec = 0;
+  romState.startTime = Date.now();
+  romState.isGoalCompleted = false;
+  romState.stationaryBoxPx = null;
+  romScoreEl.textContent = "0";
+  romHudScore.textContent = "0";
+  romCheerOverlay.classList.remove("show");
+  updateGoalDisplays();
+}
+
+function triggerGoalCompletion(message) {
+  if (romState.isGoalCompleted) return;
+  romState.isGoalCompleted = true;
+  playCheerFanfare();
+  romCheerMsg.textContent = message;
+  romCheerOverlay.classList.add("show");
+}
+
+function checkGoalConditions() {
+  if (romState.isGoalCompleted) return;
+  // Targeted Hits Goal
+  if (romState.targetHitsGoal > 0 && romState.score >= romState.targetHitsGoal) {
+    triggerGoalCompletion(`Awesome job reaching ${romState.targetHitsGoal} hits!`);
+    return;
+  }
+  // Time Duration Goal
+  if (romState.durationGoalSec > 0 && romState.elapsedSec >= romState.durationGoalSec) {
+    const durMins = Math.round(romState.durationGoalSec / 60);
+    triggerGoalCompletion(`Time's up! Great ${durMins}-minute ROM session completed!`);
+  }
+}
+
+romDurationSelect.addEventListener("change", (e) => {
+  romState.durationGoalSec = parseInt(e.target.value) || 0;
+  resetRomState();
+});
+romHitsSelect.addEventListener("change", (e) => {
+  romState.targetHitsGoal = parseInt(e.target.value) || 0;
+  resetRomState();
+});
+romCheerBtn.addEventListener("click", () => {
+  romCheerOverlay.classList.remove("show");
+  resetRomState();
+});
+
+document.querySelectorAll("[data-joint]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("[data-joint]").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    romState.joint = btn.dataset.joint;
+    romState.stationaryBoxPx = null;
+    resetRomState();
+    romGaugeTitle.textContent = "Live " + romState.joint + " angle";
+    romHudTitle.textContent = romState.joint.toUpperCase() + " Angle";
+    romPrecautionRow.style.display = romState.joint === "hip" ? "flex" : "none";
+    if (romState.joint !== "hip") { romPrecautionBanner.classList.remove("show"); stopWarningLoop(); }
+    const defaults = { hip: [30, 60], knee: [40, 90], ankle: [70, 110] };
+    const [dmin, dmax] = defaults[romState.joint];
+    romMinSlider.value = dmin; romMaxSlider.value = dmax;
+    romState.min = dmin; romState.max = dmax;
+    romMinVal.textContent = dmin + "°"; romMaxVal.textContent = dmax + "°";
+  });
+});
+
+document.querySelectorAll("[data-side]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("[data-side]").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    romState.side = btn.dataset.side;
+    romState.stationaryBoxPx = null;
+  });
+});
+
+romMinSlider.addEventListener("input", () => {
+  romState.min = +romMinSlider.value;
+  romMinVal.textContent = romState.min + "°";
+  romState.stationaryBoxPx = null;
+});
+romMaxSlider.addEventListener("input", () => {
+  romState.max = +romMaxSlider.value;
+  romMaxVal.textContent = romState.max + "°";
+  romState.stationaryBoxPx = null;
+});
+document.getElementById("rom-reset-score").addEventListener("click", () => resetRomState());
+
+romPrecautionToggle.addEventListener("change", () => {
+  romState.precautionOn = romPrecautionToggle.checked;
+  if (!romState.precautionOn) { romPrecautionBanner.classList.remove("show"); stopWarningLoop(); }
+});
+
+function stopWarningLoop() {
+  if (romState.warningInterval) { clearInterval(romState.warningInterval); romState.warningInterval = null; }
+  if (adlState.warningInterval) { clearInterval(adlState.warningInterval); adlState.warningInterval = null; }
+}
+
+function setPrecautionBanner(bannerEl, angle, prevStatusHolder) {
+  let status = "safe", text = "Within safe range";
+  if (angle >= 90) { status = "exceeded"; text = "⚠ 90° hip precaution exceeded — ease off now!"; }
+  else if (angle >= 75) { status = "approaching"; text = "Approaching 90° hip precaution limit"; }
+  bannerEl.className = "banner show " + status;
+  bannerEl.textContent = text;
+  if (status === "exceeded" && prevStatusHolder.status !== "exceeded") {
+    playCaution();
+  }
+  prevStatusHolder.status = status;
+  return status;
+}
+
+const romPrecautionRef = { status: "safe" };
+const adlPrecautionRef = { status: "safe" };
+
+function romOnFrame(landmarks, ctx, w, h) {
+  if (!landmarks) {
+    romAngleValue.textContent = "--°";
+    romHudAngle.textContent = "--°";
+    return;
+  }
+  const side = romState.side;
+  const shoulder = landmarks[LM.shoulder[side]];
+  const hip = landmarks[LM.hip[side]];
+  const knee = landmarks[LM.knee[side]];
+  const ankle = landmarks[LM.ankle[side]];
+  const foot = landmarks[LM.foot[side]];
+
+  let rawValue = null;
+  if (romState.joint === "hip") rawValue = angleDeg(shoulder, hip, knee) !== null ? 180 - angleDeg(shoulder, hip, knee) : null;
+  if (romState.joint === "knee") rawValue = angleDeg(hip, knee, ankle) !== null ? 180 - angleDeg(hip, knee, ankle) : null;
+  if (romState.joint === "ankle") rawValue = angleDeg(knee, ankle, foot);
+
+  if (rawValue === null || isNaN(rawValue)) {
+    romAngleValue.textContent = "--°";
+    romHudAngle.textContent = "--°";
+    return;
+  }
+
+  // Smooth calculated angle to prevent jumping/flickering
+  if (romState.smoothedAngle === null) romState.smoothedAngle = rawValue;
+  else romState.smoothedAngle = romState.smoothedAngle * 0.72 + rawValue * 0.28;
+
+  let value = Math.max(0, Math.min(180, romState.smoothedAngle));
+  const roundedDeg = Math.round(value) + "°";
+  romAngleValue.textContent = roundedDeg;
+  romHudAngle.textContent = roundedDeg;
+  updateRomGauge(value);
+
+  // Hip precaution reminder
+  if (romState.joint === "hip" && romState.precautionOn) {
+    const status = setPrecautionBanner(romPrecautionBanner, value, romPrecautionRef);
+    if (status === "exceeded" && !romState.warningInterval) {
+      romState.warningInterval = setInterval(playCaution, 1300);
+    } else if (status !== "exceeded" && romState.warningInterval) {
+      clearInterval(romState.warningInterval); romState.warningInterval = null;
+    }
+  }
+
+  // ---- Stationary Target Box Correlated to Maximum Target Range ----
+  let pivot, v0, vcur, segLen;
+  if (romState.joint === "hip") { pivot = hip; v0 = normalize(sub(hip, shoulder)); vcur = normalize(sub(knee, hip)); segLen = dist(hip, knee); }
+  else if (romState.joint === "knee") { pivot = knee; v0 = normalize(sub(knee, hip)); vcur = normalize(sub(ankle, knee)); segLen = dist(knee, ankle); }
+  else { pivot = ankle; v0 = normalize(sub(ankle, knee)); vcur = normalize(sub(foot, ankle)); segLen = dist(ankle, foot); }
+
+  const cz = crossZ(v0, vcur);
+  if (Math.abs(cz) > 0.03) romState.rotSign = cz >= 0 ? 1 : -1;
+
+  // Calculate box location specifically at target MAXIMUM range so it stays stationary for reaching
+  const maxDeg = romState.joint === "ankle" ? (180 - romState.max) : romState.max;
+  const dirMax = rotateVec(v0, romState.rotSign * maxDeg * Math.PI / 180);
+  const calculatedBoxPx = {
+    x: (pivot.x + dirMax.x * segLen) * w,
+    y: (pivot.y + dirMax.y * segLen) * h
+  };
+
+  // Heavy anchor smoothing for the stationary box position
+  if (!romState.stationaryBoxPx) {
+    romState.stationaryBoxPx = calculatedBoxPx;
+  } else {
+    romState.stationaryBoxPx.x = romState.stationaryBoxPx.x * 0.94 + calculatedBoxPx.x * 0.06;
+    romState.stationaryBoxPx.y = romState.stationaryBoxPx.y * 0.94 + calculatedBoxPx.y * 0.06;
+  }
+
+  const boxPx = romState.stationaryBoxPx;
+  const now = performance.now();
+  const inside = value >= romState.min && value <= romState.max;
+  const bounce = now < romState.boxBounceUntil ? 12 * Math.sin(Math.PI * (1 - (romState.boxBounceUntil - now) / 260)) : 0;
+  
+  // Make target box larger for easier hitting
+  const boxSize = Math.max(70, Math.min(125, segLen * w * 0.55));
+  drawBrickBox(ctx, boxPx.x, boxPx.y, boxSize, bounce, inside);
+  drawCoinParticles(ctx, romState.coinParticles, now);
+
+  // Gamified hit detection — triggers when joint enters target range
+  if (inside && !romState.wasInside && now > romState.cooldownUntil && !romState.isGoalCompleted) {
+    romState.score++;
+    romScoreEl.textContent = romState.score;
+    romHudScore.textContent = romState.score;
+    romState.cooldownUntil = now + 850;
+    romState.boxBounceUntil = now + 260;
+    romState.coinParticles.push({ x: boxPx.x, y: boxPx.y - boxSize * 0.5, born: now });
+    playSuccess();
+    romCoinFx.classList.remove("pop"); void romCoinFx.offsetWidth; romCoinFx.classList.add("pop");
+    checkGoalConditions();
+  }
+  romState.wasInside = inside;
+}
+
+function updateRomGauge(value) {
+  const cx = 100, cy = 100, r = 78;
+  document.getElementById("rom-gauge-bg").setAttribute("d", describeGaugeArc(cx, cy, r, 0, 180));
+  document.getElementById("rom-gauge-target").setAttribute("d", describeGaugeArc(cx, cy, r, romState.min, romState.max));
+  const dangerEl = document.getElementById("rom-gauge-danger");
+  if (romState.joint === "hip" && romState.precautionOn) {
+    dangerEl.style.display = "inline"; dangerEl.setAttribute("d", describeGaugeArc(cx, cy, r, 90, 180));
+  } else { dangerEl.style.display = "none"; }
+  const tip = pointOnGauge(cx, cy, 62, value);
+  document.getElementById("rom-gauge-needle").setAttribute("x2", tip.x);
+  document.getElementById("rom-gauge-needle").setAttribute("y2", tip.y);
+}
+updateRomGauge(0);
+
+const romStage = new Stage({
+  stageCardId: "rom-stage-card",
+  videoId: "rom-video", canvasId: "rom-canvas", placeholderId: "rom-placeholder",
+  startBtnId: "rom-start-btn", stopBtnId: "rom-stop-btn", flipBtnId: "rom-flip-btn",
+  fullscreenBtnId: "rom-fullscreen-btn",
+  camStatusId: "rom-cam-status", bodyStatusId: "rom-body-status",
+  onFrame: romOnFrame
+});
+romStage.onStart = () => startRomTimer();
+
+/* =================================================================
+   ADL TRAINING — dressing lower garment
+================================================================= */
+const DON_SEQUENCE = [
+  { key: "foot", label: "Reach the pant down to your toes" },
+  { key: "ankle", label: "Slide up to your ankle" },
+  { key: "knee", label: "Slide up to your knee" },
+  { key: "hip", label: "Pull the pant up to your hip — it's on!" }
+];
+const DOFF_SEQUENCE = [
+  { key: "hip", label: "Begin taking off: push the waistband down from your hip" },
+  { key: "knee", label: "Slide down to your knee" },
+  { key: "ankle", label: "Slide down to your ankle" },
+  { key: "foot", label: "Slide it off at your toes — done!" }
+];
+const FULL_SEQUENCE = DON_SEQUENCE.concat(DOFF_SEQUENCE);
+
+const adlState = {
+  side: "right",
+  stepIndex: 0,
+  dwellFrames: 0,
+  precautionOn: false,
+  warningInterval: null,
+  coinParticles: []
+};
+
+const adlStepListEl = document.getElementById("adl-step-list");
+function renderAdlSteps() {
+  adlStepListEl.innerHTML = "";
+  FULL_SEQUENCE.forEach((step, i) => {
+    const li = document.createElement("li");
+    li.className = i < adlState.stepIndex ? "done" : (i === adlState.stepIndex ? "current" : "");
+    const dot = document.createElement("span");
+    dot.className = "dot";
+    dot.textContent = i < adlState.stepIndex ? "✓" : (i + 1);
+    li.appendChild(dot);
+    const txt = document.createElement("span");
+    txt.textContent = (i === 4 ? "Reverse — " : "") + step.label;
+    li.appendChild(txt);
+    adlStepListEl.appendChild(li);
+  });
+  const currentStep = FULL_SEQUENCE[adlState.stepIndex];
+  if (currentStep) {
+    document.getElementById("adl-hud-step").textContent = `Step ${adlState.stepIndex + 1}/${FULL_SEQUENCE.length}`;
+  }
+}
+renderAdlSteps();
+
+document.querySelectorAll("[data-adl-side]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("[data-adl-side]").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    adlState.side = btn.dataset.adlSide;
+  });
+});
+document.getElementById("adl-restart-btn").addEventListener("click", () => {
+  adlState.stepIndex = 0; adlState.dwellFrames = 0; renderAdlSteps();
+});
+document.getElementById("adl-precaution-toggle").addEventListener("change", (e) => {
+  adlState.precautionOn = e.target.checked;
+  if (!adlState.precautionOn) document.getElementById("adl-precaution-banner").classList.remove("show");
+});
+
+function adlOnFrame(landmarks, ctx, w, h) {
+  const hipVal = document.getElementById("adl-hip-val");
+  const kneeVal = document.getElementById("adl-knee-val");
+  const ankleVal = document.getElementById("adl-ankle-val");
+  
+  const hudHip = document.getElementById("adl-hud-hip");
+  const hudKnee = document.getElementById("adl-hud-knee");
+
+  if (!landmarks) {
+    hipVal.textContent = kneeVal.textContent = ankleVal.textContent = "--°";
+    hudHip.textContent = "Hip: --°"; hudKnee.textContent = "Knee: --°";
+    return;
+  }
+
+  const side = adlState.side;
+  const shoulder = landmarks[LM.shoulder[side]];
+  const hip = landmarks[LM.hip[side]];
+  const knee = landmarks[LM.knee[side]];
+  const ankle = landmarks[LM.ankle[side]];
+  const foot = landmarks[LM.foot[side]];
+  const wristR = landmarks[LM.wrist.right];
+  const wristL = landmarks[LM.wrist.left];
+
+  const hipFlex = angleDeg(shoulder, hip, knee) !== null ? 180 - angleDeg(shoulder, hip, knee) : null;
+  const kneeFlex = angleDeg(hip, knee, ankle) !== null ? 180 - angleDeg(hip, knee, ankle) : null;
+  const ankleAng = angleDeg(knee, ankle, foot);
+
+  const roundedHip = hipFlex !== null ? Math.round(hipFlex) + "°" : "--°";
+  const roundedKnee = kneeFlex !== null ? Math.round(kneeFlex) + "°" : "--°";
+
+  hipVal.textContent = roundedHip;
+  kneeVal.textContent = roundedKnee;
+  ankleVal.textContent = ankleAng !== null ? Math.round(ankleAng) + "°" : "--°";
+
+  hudHip.textContent = `Hip: ${roundedHip}`;
+  hudKnee.textContent = `Knee: ${roundedKnee}`;
+
+  if (adlState.precautionOn && hipFlex !== null) {
+    const status = setPrecautionBanner(document.getElementById("adl-precaution-banner"), hipFlex, adlPrecautionRef);
+    if (status === "exceeded" && !adlState.warningInterval) adlState.warningInterval = setInterval(playCaution, 1300);
+    else if (status !== "exceeded" && adlState.warningInterval) { clearInterval(adlState.warningInterval); adlState.warningInterval = null; }
+  }
+
+  const step = FULL_SEQUENCE[adlState.stepIndex];
+  if (!step) return;
+  const targetMap = { foot, ankle, knee, hip };
+  const target = targetMap[step.key];
+  const torsoLen = (shoulder && hip) ? dist(shoulder, hip) : 0.25;
+  if (target) {
+    const tx = target.x * w, ty = target.y * h;
+    const pulse = 16 + 5 * Math.sin(performance.now() / 180);
+    ctx.beginPath();
+    ctx.arc(tx, ty, pulse, 0, Math.PI * 2);
+    ctx.strokeStyle = "#E3A23C"; ctx.lineWidth = 4; ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(tx, ty, 6, 0, Math.PI * 2);
+    ctx.fillStyle = "#E3A23C"; ctx.fill();
+
+    const dR = wristR ? dist(wristR, target) : Infinity;
+    const dL = wristL ? dist(wristL, target) : Infinity;
+    const closest = Math.min(dR, dL);
+    const threshold = Math.max(0.12, torsoLen * 0.55);
+    if (closest < threshold) {
+      adlState.dwellFrames++;
+      if (adlState.dwellFrames > 18) {
+        adlState.stepIndex = Math.min(adlState.stepIndex + 1, FULL_SEQUENCE.length);
+        adlState.dwellFrames = 0;
+        renderAdlSteps();
+        adlState.coinParticles.push({ x: tx, y: ty, born: performance.now() });
+        if (adlState.stepIndex < FULL_SEQUENCE.length) playStepDing(); else playSuccess();
+      }
+    } else {
+      adlState.dwellFrames = Math.max(0, adlState.dwellFrames - 1);
+    }
+  }
+  drawCoinParticles(ctx, adlState.coinParticles, performance.now());
+}
+
+const adlStage = new Stage({
+  stageCardId: "adl-stage-card",
+  videoId: "adl-video", canvasId: "adl-canvas", placeholderId: "adl-placeholder",
+  startBtnId: "adl-start-btn", stopBtnId: "adl-stop-btn", flipBtnId: "adl-flip-btn",
+  fullscreenBtnId: "adl-fullscreen-btn",
+  camStatusId: "adl-cam-status", bodyStatusId: "adl-body-status",
+  onFrame: adlOnFrame
+});
+
+</script>
+</body>
+</html>
